@@ -15,10 +15,12 @@ import java.util.Random;
 import ur_os.memory.MemoryInstruction;
 import ur_os.memory.MemoryOperationType;
 import ur_os.memory.freememorymagament.FreeMemorySlotManager;
+import ur_os.memory.freememorymagament.FreeMemorySlotManagerType;
 import ur_os.process.EndInstruction;
 import ur_os.process.IOInstruction;
 import ur_os.process.Instruction;
 import ur_os.virtualmemory.SwapMemory;
+import java.util.Scanner; // Agrega este import
 
 /**
  *
@@ -50,20 +52,29 @@ public class SystemOS implements Runnable{
     protected ArrayList<Process> processes;
     ArrayList<Integer> execution;
 
+    
     public SystemOS(SimulationType simType) {
+        Scanner sc = new Scanner(System.in);
+
+        // 1. Menú para el FIT
+        configurarFit(sc);
+
+        // 2. Menú para el INIT SIMULATOR
+        int opcionInit = configurarInit(sc);
+
+        // Inicialización normal del sistema
         memory = new Memory(MEMORY_SIZE);
         swap = new SwapMemory(MEMORY_SIZE);
-        cpu = new CPU(memory,swap);
+        cpu = new CPU(memory, swap);
         ioq = new IOQueue();
         os = new OS(this, cpu, ioq);
         cpu.setOS(os);
         ioq.setOS(os);
         execution = new ArrayList();
         processes = new ArrayList();
-        //initSimulationQueue();
-        //initSimulationQueueSimple();
-        initSimulationQueueSimpler();
-        
+
+        // 3. Ejecutar el init seleccionado
+        ejecutarInitSeleccionado(opcionInit);
 
         showProcesses();
         this.simType = simType;
@@ -114,7 +125,7 @@ public class SystemOS implements Runnable{
         clock = 0;
     }
     
-    public void initSimulationQueueSimpler(){
+    public void initSimulationQueueSimpler(){ //Este es el que se está ejecutando
         
         int tempSize;
         Process p = new Process(0,0);
@@ -159,6 +170,19 @@ public class SystemOS implements Runnable{
         
         //Process 3
         p = new Process(3,8);
+        tempSize = r.nextInt(MAX_PROC_SIZE-1)+1;
+        p.setSize(tempSize);
+        p.addCPUInstructions(4);
+        //temp = new IOInstruction(3);    
+        temp = new MemoryInstruction(MemoryOperationType.STORE, r.nextInt(tempSize), (byte)42, 4); //Store in logical address 10, valir 38, 3 clock cycles
+        p.addInstruction(temp);
+        p.addCPUInstructions(7);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+        
+        //Process 4
+        p = new Process(4,20);
         tempSize = r.nextInt(MAX_PROC_SIZE-1)+1;
         p.setSize(tempSize);
         p.addCPUInstructions(4);
@@ -471,5 +495,46 @@ public class SystemOS implements Runnable{
         return tot/processes.size();
     }
     
-    
+    private void configurarFit(Scanner sc) {
+        System.out.println("=== Select the Fitting Algorithm ===");
+        System.out.println("1. First Fit");
+        System.out.println("2. Best Fit");
+        System.out.println("3. Worst Fit");
+        System.out.println("4. Another Fit (No existe aun)");
+        System.out.print("Option: ");
+        int opcion = sc.nextInt();
+
+        switch (opcion) {
+            case 1: OS.MSM = FreeMemorySlotManagerType.FIRST_FIT; break;
+            case 2: OS.MSM = FreeMemorySlotManagerType.BEST_FIT; break;
+            case 3: OS.MSM = FreeMemorySlotManagerType.WORST_FIT; break;
+            default: 
+                System.out.println("Invalid option; using the default Best Fit");
+                OS.MSM = FreeMemorySlotManagerType.BEST_FIT;
+        }
+    }
+
+    private int configurarInit(Scanner sc) {
+        System.out.println("\n=== Select the Simulator  ===");
+        System.out.println("1. Init Simulation Queue ");
+        System.out.println("2. Init Simulation Queue Simple");
+        System.out.println("3. Init Simulation Queue Simpler (Configuracion actual)");
+        System.out.println("4. Init Simulation Queue Simpler 2 ");
+        System.out.println("5. Init Simulation Queue Simpler 3 ");
+        System.out.print("Option: ");
+        return sc.nextInt();
+    }
+
+    private void ejecutarInitSeleccionado(int opcion) {
+        switch (opcion) {
+            case 1: initSimulationQueue(); break;
+            case 2: initSimulationQueueSimple(); break;
+            case 3: initSimulationQueueSimpler(); break;
+            case 4: initSimulationQueueSimpler2(); break;
+            case 5: initSimulationQueueSimpler3(); break;
+            default: 
+                System.out.println("Invalid option; using the default Simpler");
+                initSimulationQueueSimpler();
+        }
+    }
 }
