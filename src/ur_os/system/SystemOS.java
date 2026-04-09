@@ -302,6 +302,101 @@ public class SystemOS implements Runnable{
     }
     
     
+    public void initSimulationQueueSimpler4(){ //Este es el que se está ejecutando (simulador caso best fit y worst fit)
+        
+        //Process 0
+        Process p0 = new Process(0,0);
+        p0.setSize(200000);
+        Instruction temp;  
+        p0.addCPUInstructions(1);
+        temp = new IOInstruction(4);    
+        p0.addInstruction(temp);
+        p0.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p0.addInstruction(temp);
+        processes.add(p0);
+        
+        
+        //Process 1
+        Process p1 = new Process(1,0);
+        p1.setSize(100000);
+        p1.addCPUInstructions(1); 
+        temp = new IOInstruction(9); 
+        p1.addInstruction(temp);
+        p1.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p1.addInstruction(temp);
+        processes.add(p1);
+        
+        
+        //Process 2
+        Process p2 = new Process(2,0);
+        p2.setSize(400000);
+        p2.addCPUInstructions(1);   
+        temp = new IOInstruction(3);    
+        p2.addInstruction(temp);
+        p2.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p2.addInstruction(temp);
+        processes.add(p2);
+        
+        //Process 3
+        Process p = new Process(3,0);
+        p.setSize(100000);
+        p.addCPUInstructions(1);    
+        temp = new IOInstruction(8);
+        p.addInstruction(temp);
+        p.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+        
+        //Process 4
+        p = new Process(4,2);
+        p.setSize(200000);
+        p.addCPUInstructions(1);   
+        temp = new IOInstruction(1);
+        p.addInstruction(temp);
+        p.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+        
+        //Process 5
+        p = new Process(5,15);
+        p.setSize(220000);
+        p.addCPUInstructions(1); 
+        temp = new IOInstruction(4);
+        p.addInstruction(temp);
+        p.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+        
+        //Process 6
+        p = new Process(6,15);
+        p.setSize(100000);
+        p.addCPUInstructions(1); 
+        temp = new IOInstruction(4); 
+        p.addInstruction(temp);
+        p.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+        
+        //Process 7
+        p = new Process(7,15);
+        p.setSize(300000);
+        p.addCPUInstructions(1); 
+        temp = new IOInstruction(4);
+        p.addInstruction(temp);
+        p.addCPUInstructions(1);
+        temp = new EndInstruction();
+        p.addInstruction(temp);
+        processes.add(p);
+        
+        clock = 0;
+    }
     
     /*NUESTRO ESCENARIO PROPUESTO - ENTREGA 1: La idea es que queríamos un escenario
     donde todos los fits no den el mismo resultado, para mostrar que cada algoritmo
@@ -639,6 +734,7 @@ public class SystemOS implements Runnable{
         System.out.println("4. Init Simulation Queue Simpler 2 ");
         System.out.println("5. Init Simulation Queue Simpler 3 ");
         System.out.println("6. Init Simulation Queue Weird");
+        System.out.println("7. Init Simulation Queue Weird 2");
         System.out.print("Option: ");
         return sc.nextInt();
     }
@@ -651,9 +747,11 @@ public class SystemOS implements Runnable{
             case 4: initSimulationQueueSimpler2(); break;
             case 5: initSimulationQueueSimpler3(); break;
             case 6: initSimulationQueueWeird();break;
+            case 7: initSimulationQueueSimpler4();break;
             default: 
                 System.out.println("Invalid option; using the default Simpler");
                 initSimulationQueueSimpler();
         }
     }
 }
+
