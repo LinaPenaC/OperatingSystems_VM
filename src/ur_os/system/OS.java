@@ -16,6 +16,8 @@ import ur_os.process.ProcessState;
 import java.util.Random;
 import ur_os.memory.freememorymagament.BestFitMemorySlotManager;
 import ur_os.memory.freememorymagament.FirstFitMemorySlotManager;
+import ur_os.memory.freememorymagament.NextFitMemorySlotManager;
+import ur_os.memory.freememorymagament.QuickFitMemorySlotManager;
 import ur_os.memory.freememorymagament.FreeMemoryManager;
 import ur_os.memory.freememorymagament.MemorySlot;
 import ur_os.memory.freememorymagament.FreeMemorySlotManager;
@@ -99,6 +101,14 @@ public class OS {
             case WORST_FIT:
                 fmm = new WorstFitMemorySlotManager(SystemOS.MEMORY_SIZE);
                 fvmm = new WorstFitMemorySlotManager(SystemOS.SWAP_MEMORY_SIZE);
+                break;
+            case NEXT_FIT:
+                fmm = new NextFitMemorySlotManager(SystemOS.MEMORY_SIZE);
+                fvmm = new NextFitMemorySlotManager(SystemOS.SWAP_MEMORY_SIZE); // ← faltaba esto
+                break;
+            case QUICK_FIT:
+                fmm = new QuickFitMemorySlotManager(SystemOS.MEMORY_SIZE);
+                fvmm = new QuickFitMemorySlotManager(SystemOS.SWAP_MEMORY_SIZE); // ← faltaba esto
                 break;
             }
         }

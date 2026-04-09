@@ -303,6 +303,114 @@ public class SystemOS implements Runnable{
     
     
     
+    /*NUESTRO ESCENARIO PROPUESTO - ENTREGA 1: La idea es que queríamos un escenario
+    donde todos los fits no den el mismo resultado, para mostrar que cada algoritmo
+    sí aplica su tecnica. Entonces la idea es como tener un escenario donde haya huecos
+    de distintos tamaños disponibles AL MISMO TIEMPO. (O sea, que los primeros procesos,
+    terminen rápido y liberen memoria antes de que lleguen los siguientes)
+*/
+    public void initSimulationQueueWeird() {
+        Instruction instruccionTemp;
+        Process proceso;
+
+        // P0 - size=250000, termina rapido con FCFS
+        proceso = new Process(0, 0);
+        proceso.setSize(250000);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new MemoryInstruction(MemoryOperationType.STORE, 10, (byte) 5, 2);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(1);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // Sep1 - size=50000, separador con IO repetido: dura hasta ~t=60
+        proceso = new Process(1, 0);
+        proceso.setSize(50000);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new IOInstruction(15);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new IOInstruction(15);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // P1 - size=250000, termina rapido con FCFS
+        proceso = new Process(2, 0);
+        proceso.setSize(250000);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new MemoryInstruction(MemoryOperationType.STORE, 50000, (byte) 20, 2);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(1);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // Sep2 - size=50000, separador con IO repetido: igual que Sep1
+        proceso = new Process(3, 0);
+        proceso.setSize(50000);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new IOInstruction(15);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new IOInstruction(15);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // P2 - size=200000, termina rapido con FCFS
+        proceso = new Process(4, 0);
+        proceso.setSize(200000);
+        proceso.addCPUInstructions(2);
+        instruccionTemp = new MemoryInstruction(MemoryOperationType.STORE, 50000, (byte) 15, 2);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(1);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // P6 - size=180000
+        proceso = new Process(5, 25);
+        proceso.setSize(180000);
+        proceso.addCPUInstructions(3);
+        instruccionTemp = new MemoryInstruction(MemoryOperationType.STORE, 50000, (byte) 33, 3);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(3);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // P7 - size=170000
+        proceso = new Process(6, 25);
+        proceso.setSize(170000);
+        proceso.addCPUInstructions(3);
+        instruccionTemp = new MemoryInstruction(MemoryOperationType.STORE, 30000, (byte) 50, 3);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(3);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+
+        // P8 - size=160000
+        proceso = new Process(7, 25);
+        proceso.setSize(160000);
+        proceso.addCPUInstructions(3);
+        instruccionTemp = new MemoryInstruction(MemoryOperationType.STORE, 20000, (byte) 77, 3);
+        proceso.addInstruction(instruccionTemp);
+        proceso.addCPUInstructions(3);
+        instruccionTemp = new EndInstruction();
+        proceso.addInstruction(instruccionTemp);
+        processes.add(proceso);
+        clock = 0;
+    }
+    
+    
+    
     public boolean isSimulationFinished(){
         
         boolean finished = true;
@@ -418,6 +526,12 @@ public class SystemOS implements Runnable{
             System.out.println("Free Memory Slots ("+os.fmm.getSize()+"): ");
             FreeMemorySlotManager msm = (FreeMemorySlotManager)os.fmm;
             System.out.println(msm);
+            
+            System.out.println("CÁLCULO DE FRAGMENTACIÓN ");
+            System.out.println("Memoria libre total               : " + msm.obtenerMemoriaLibreTotal() + " bytes");
+            System.out.println("% de area no utilizada            : " + String.format("%.2f", msm.calcularPorcentajeNoUtilizado(SystemOS.MEMORY_SIZE)) + "%");
+            System.out.println("Tamano promedio de slots libres   : " + String.format("%.2f", msm.calcularTamanoPromedioSlots()) + " bytes");
+            System.out.println("Fragmentacion externa             : " + String.format("%.2f", msm.calcularFragmentacionExterna()) + "%");
         }
     }
     
@@ -500,7 +614,8 @@ public class SystemOS implements Runnable{
         System.out.println("1. First Fit");
         System.out.println("2. Best Fit");
         System.out.println("3. Worst Fit");
-        System.out.println("4. Another Fit (No existe aun)");
+        System.out.println("4. Next Fit");
+        System.out.println("5. Quick Fit");
         System.out.print("Option: ");
         int opcion = sc.nextInt();
 
@@ -508,6 +623,8 @@ public class SystemOS implements Runnable{
             case 1: OS.MSM = FreeMemorySlotManagerType.FIRST_FIT; break;
             case 2: OS.MSM = FreeMemorySlotManagerType.BEST_FIT; break;
             case 3: OS.MSM = FreeMemorySlotManagerType.WORST_FIT; break;
+            case 4: OS.MSM = FreeMemorySlotManagerType.NEXT_FIT; break;
+            case 5: OS.MSM = FreeMemorySlotManagerType.QUICK_FIT; break;
             default: 
                 System.out.println("Invalid option; using the default Best Fit");
                 OS.MSM = FreeMemorySlotManagerType.BEST_FIT;
@@ -521,6 +638,7 @@ public class SystemOS implements Runnable{
         System.out.println("3. Init Simulation Queue Simpler (Configuracion actual)");
         System.out.println("4. Init Simulation Queue Simpler 2 ");
         System.out.println("5. Init Simulation Queue Simpler 3 ");
+        System.out.println("6. Init Simulation Queue Weird");
         System.out.print("Option: ");
         return sc.nextInt();
     }
@@ -532,6 +650,7 @@ public class SystemOS implements Runnable{
             case 3: initSimulationQueueSimpler(); break;
             case 4: initSimulationQueueSimpler2(); break;
             case 5: initSimulationQueueSimpler3(); break;
+            case 6: initSimulationQueueWeird();break;
             default: 
                 System.out.println("Invalid option; using the default Simpler");
                 initSimulationQueueSimpler();

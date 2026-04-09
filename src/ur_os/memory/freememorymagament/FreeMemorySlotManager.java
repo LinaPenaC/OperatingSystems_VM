@@ -114,4 +114,42 @@ public abstract class FreeMemorySlotManager extends FreeMemoryManager{
         return this.list.size();
     }
     
+    //CÁLCULO DE FRAGMENTACION: CON LOS INDICADORES QUE NOS DIJO EL PROFE
+    // Indicador 1: porcentaje de memoria que no se esta usando en este momento
+    public double calcularPorcentajeNoUtilizado(int tamanoTotalMemoria) {
+        double memoriaLibre = obtenerMemoriaLibreTotal();
+        return (memoriaLibre / tamanoTotalMemoria) * 100;
+    }
+
+    // Indicador 2: tamano promedio de los slots libres
+    public double calcularTamanoPromedioSlots() {
+        if (list.size() == 0) return 0; // evitamos dividir entre cero
+        return (double) obtenerMemoriaLibreTotal() / list.size();
+    }
+
+    // Indicador 3: fragmentacion externa como porcentaje
+    // Mide cuanta memoria libre esta atrapada en huecos pequenos
+    // Formula estandar: (1 - slotMasGrande / memoriaLibreTotal) * 100
+    public double calcularFragmentacionExterna() {
+        int memoriaLibre = obtenerMemoriaLibreTotal();
+        if (memoriaLibre == 0) return 0.0;
+        if (list.size() <= 1) return 0.0; // con un solo hueco no hay fragmentacion
+
+        int slotMasGrande = 0;
+        for (MemorySlot espacio : list) {
+            if (espacio.getSize() > slotMasGrande) {
+                slotMasGrande = espacio.getSize();
+            }
+        }
+
+        return (1.0 - ((double) slotMasGrande / memoriaLibre)) * 100;
+    }
+
+    public int obtenerMemoriaLibreTotal() {
+        int total = 0;
+        for (MemorySlot espacio : list) {
+            total += espacio.getSize();
+        }
+        return total;
+    }
 }
