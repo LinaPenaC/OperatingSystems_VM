@@ -20,7 +20,7 @@ import ur_os.process.EndInstruction;
 import ur_os.process.IOInstruction;
 import ur_os.process.Instruction;
 import ur_os.virtualmemory.SwapMemory;
-import java.util.Scanner; // Agrega este import
+import java.util.Scanner; 
 
 /**
  *
