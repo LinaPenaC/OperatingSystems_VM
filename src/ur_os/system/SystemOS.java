@@ -56,13 +56,10 @@ public class SystemOS implements Runnable{
     public SystemOS(SimulationType simType) {
         Scanner sc = new Scanner(System.in);
 
-        // 1. Menú para el FIT
         configurarFit(sc);
 
-        // 2. Menú para el INIT SIMULATOR
         int opcionInit = configurarInit(sc);
 
-        // Inicialización normal del sistema
         memory = new Memory(MEMORY_SIZE);
         swap = new SwapMemory(MEMORY_SIZE);
         cpu = new CPU(memory, swap);
@@ -73,7 +70,6 @@ public class SystemOS implements Runnable{
         execution = new ArrayList();
         processes = new ArrayList();
 
-        // 3. Ejecutar el init seleccionado
         ejecutarInitSeleccionado(opcionInit);
 
         showProcesses();
