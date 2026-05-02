@@ -57,7 +57,7 @@ public class OS {
     
     public static final int MAX_PROCESS_PRIORITY = 10; //Page size in bytes
     public static final int PAGE_SIZE = 64; //Page size in bytes
-    public static final MemoryManagerType SMM = MemoryManagerType.CONTIGUOUS;
+    public static MemoryManagerType SMM = MemoryManagerType.CONTIGUOUS;
     public static FreeMemorySlotManagerType MSM = FreeMemorySlotManagerType.FIRST_FIT; //Aquí estoy cambiendo el FIT
     
     public static final ProcessVirtualMemoryManagerType PVMM = ProcessVirtualMemoryManagerType.LRU;
