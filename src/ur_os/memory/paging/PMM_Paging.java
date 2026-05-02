@@ -68,8 +68,6 @@ public class PMM_Paging extends ProcessMemoryManager{
         this.loadedPages = loadedPages;
     }
 
-    
-    
     public PageTable getVPT() {
         return vpt;
     }
@@ -99,44 +97,57 @@ public class PMM_Paging extends ProcessMemoryManager{
         setPageValid(page, true);
         pt.setPageDirty(page, false);
     }
-    
+    // De locAddress a MemoryAddres (page y offset)
     public MemoryAddress getPageMemoryAddressFromLocalAddress(int locAdd){
-        
-        //Include your code here
-        
-        
-        return new MemoryAddress(-1, -1);
+        int page   = locAdd / OS.PAGE_SIZE;
+        int offset = locAdd % OS.PAGE_SIZE;
+        return new MemoryAddress(page, offset);
     }
-    
+
+    // Da el número del frame en memoria físisca
     public int getFrameMemoryAddressFromLogicalMemoryAddress(int page){
-        
-        //Include your code here
-        
-        return -1;
+        return pt.getFrameIdFromPage(page);
     }
-    
+    // De MemoryAddres (page y offset) a dir física
     public MemoryAddress getFrameMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
+        int page = m.getDivision();
+        int offsetLocal = m.getOffset();
+ 
+        int frameId = pt.getFrameIdFromPage(page);
+ 
+        if(frameId < 0){
+            return null; 
+        }
         
-        //Include your code here
-        //Return null if the address is not loaded in a frame (just for virtual memory)
-        //Include a memory access to the page that is being accessed and that is loaded
+        this.addMemoryAccess(page);
+ 
+        // division = page pa que pa.getDivision() = número de página
+        // offset = frameId*PAGE_SIZE+offsetLocal
+        // getAddress()= page + frameId*PAGE_SIZE + offsetLocal  = dir física
         
-        return new MemoryAddress(-1, -1);
+        int physicalAddress = frameId * OS.PAGE_SIZE + offsetLocal;
+        return new MemoryAddress(page, physicalAddress);
+            
     }
-    
     
     public int getVFrameMemoryAddressFromLogicalMemoryAddress(int page){
         return getVFrameMemoryAddressFromLogicalMemoryAddress(new MemoryAddress(page, 0)).getDivision();
     }
-    
+    // De páginas a frames
     public MemoryAddress getVFrameMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
         
-        //Include your code here
-        
-        return new MemoryAddress(-1, -1);
+        int page = m.getDivision();
+        int offsetLocal = m.getOffset();
+ 
+        int frameId = vpt.getFrameIdFromPage(page);
+ 
+        if(frameId < 0){
+            return new MemoryAddress(-1, -1);
+        }
+ 
+        int physicalSwapAddress = frameId * OS.PAGE_SIZE + offsetLocal;
+        return new MemoryAddress(frameId, physicalSwapAddress);
     }
-    
-   
     
      @Override
     public String toString(){
@@ -161,10 +172,7 @@ public class PMM_Paging extends ProcessMemoryManager{
     
     public void setPageDirty(int page, boolean valid){
         pt.setPageDirty(page, valid);
-    }
-    
-    
-    
+    }  
 
     @Override
     public int getVictim(){
