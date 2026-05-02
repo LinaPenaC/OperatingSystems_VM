@@ -20,7 +20,7 @@ import ur_os.process.EndInstruction;
 import ur_os.process.IOInstruction;
 import ur_os.process.Instruction;
 import ur_os.virtualmemory.SwapMemory;
-import java.util.Scanner; 
+import java.util.Scanner; // Agrega este import
 
 /**
  *
@@ -56,10 +56,14 @@ public class SystemOS implements Runnable{
     public SystemOS(SimulationType simType) {
         Scanner sc = new Scanner(System.in);
 
+        // 1. Menú para el FIT
         configurarFit(sc);
+        configurarMemoryManager(sc);
 
+        // 2. Menú para el INIT SIMULATOR
         int opcionInit = configurarInit(sc);
 
+        // Inicialización normal del sistema
         memory = new Memory(MEMORY_SIZE);
         swap = new SwapMemory(MEMORY_SIZE);
         cpu = new CPU(memory, swap);
@@ -70,6 +74,7 @@ public class SystemOS implements Runnable{
         execution = new ArrayList();
         processes = new ArrayList();
 
+        // 3. Ejecutar el init seleccionado
         ejecutarInitSeleccionado(opcionInit);
 
         showProcesses();
@@ -721,6 +726,26 @@ public class SystemOS implements Runnable{
                 OS.MSM = FreeMemorySlotManagerType.BEST_FIT;
         }
     }
+    
+    private void configurarMemoryManager(Scanner sc) {
+        System.out.println("\n=== Select the Memory Manager ===");
+        System.out.println("1. Contiguous");
+        System.out.println("2. Paging");
+        System.out.println("3. Segmentation");
+        System.out.print("Option: ");
+        int opcion = sc.nextInt();
+
+        switch (opcion) {
+            case 1: OS.SMM = MemoryManagerType.CONTIGUOUS;  break;
+            case 2: OS.SMM = MemoryManagerType.PAGING;      break;
+            case 3: OS.SMM = MemoryManagerType.SEGMENTATION; break;
+            default:
+                System.out.println("Invalid option; using Contiguous");
+                OS.SMM = MemoryManagerType.CONTIGUOUS;
+        }
+    }
+    
+    
 
     private int configurarInit(Scanner sc) {
         System.out.println("\n=== Select the Simulator  ===");
@@ -750,4 +775,5 @@ public class SystemOS implements Runnable{
         }
     }
 }
+
 
