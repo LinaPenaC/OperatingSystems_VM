@@ -367,6 +367,7 @@ public class OS {
             limit = pmm.getSegment(i).getLimit();
             m = this.getMemorySlot(limit);
             pmm.getSegment(i).setMemorySlot(m);
+            pmm.getSegment(i).setValid(true); 
         }
     }
     
