@@ -83,6 +83,7 @@ public class SegmentTable {
     }
     
     public MemoryAddress getSegmentMemoryAddressFromLocalAddress(int locAdd, boolean store){
+<<<<<<< HEAD
     int segment = -1;
     int offset = -1;
     
@@ -100,6 +101,68 @@ public class SegmentTable {
     if(segment == -1){
         System.out.println("Error - Local address " + locAdd + " out of process bounds");
         return new MemoryAddress(-1, -1);
+=======
+        int segment = -1;
+        int offset = -1;
+        
+        int accumulated = 0;
+        for(int i = 0; i < segmentTable.size(); i++){
+            int limit = segmentTable.get(i).getLimit();
+            if(locAdd < accumulated + limit){
+                segment = i;
+                offset  = locAdd - accumulated;
+                break;
+            }
+            accumulated += limit;
+        }
+ 
+        if(segment == -1){
+            // Dirección fuera del espacio del proceso
+            System.out.println("Error - Local address " + locAdd + " out of process bounds");
+            return new MemoryAddress(-1, -1);
+        }
+        
+        //For Virtual Memory: marcar el segmento como modificado si es STORE
+        if(store){
+            this.segmentTable.get(segment).setDirty();
+        }
+              
+        System.out.println("Accessing Segment "+segment+" and offset "+offset);
+        return new MemoryAddress(segment, offset);
+    }
+    
+    //Convierte un locgiAddres en direción física con la tabla de segemntos
+    public MemoryAddress getPhysicalMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
+        
+        int seg = m.getDivision();
+        int offset = m.getOffset();
+ 
+        if(seg < 0 || seg >= segmentTable.size()){
+            System.out.println("Error - Invalid segment number: " + seg);
+            return new MemoryAddress(-1, -1);
+        }
+ 
+        SegmentTableEntry entry = segmentTable.get(seg);
+ 
+        if(!entry.isValid()){
+            System.out.println("Segment fault - Segment " + seg + " not loaded in memory");
+            return new MemoryAddress(-1, -1);
+        }
+ 
+        // Ver que offset no supere el límite del segmento
+        if(offset >= entry.getLimit() || offset < 0){
+            System.out.println("Segment fault - Offset " + offset +
+                               " out of bounds for segment " + seg +
+                               " (limit=" + entry.getLimit() + ")");
+            return new MemoryAddress(-1, -1);
+        }
+ 
+        int physicalAddress = entry.getBase() + offset;
+ 
+        // division = seg 
+        // getAddress() = seg + physicalAddress = dirección física
+        return new MemoryAddress(seg, physicalAddress);
+>>>>>>> 7a28dd6dc2da8db2e6d3697a4ded22937daca680
     }
     
     //For Virtual Memory

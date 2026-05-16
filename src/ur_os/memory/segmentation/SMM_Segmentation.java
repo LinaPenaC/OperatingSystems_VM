@@ -19,6 +19,11 @@ public class SMM_Segmentation extends SystemMemoryManager{
     public int getPhysicalAddress(int logicalAddress, ProcessMemoryManager pmm, boolean store){
         if(pmm.getType() == MemoryManagerType.SEGMENTATION){
             PMM_Segmentation pmms = (PMM_Segmentation)pmm;
+<<<<<<< HEAD
+=======
+
+            //INCLUDE THE STORE VALUE TO MARK DIRTY THE SEGMENT
+>>>>>>> 7a28dd6dc2da8db2e6d3697a4ded22937daca680
             MemoryAddress la = pmms.getSegmentMemoryAddressFromLocalAddress(logicalAddress, store);
             MemoryAddress pa = pmms.getPhysicalMemoryAddressFromLogicalMemoryAddress(la);
             return pa.getAddress();
