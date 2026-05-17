@@ -83,25 +83,6 @@ public class SegmentTable {
     }
     
     public MemoryAddress getSegmentMemoryAddressFromLocalAddress(int locAdd, boolean store){
-<<<<<<< HEAD
-    int segment = -1;
-    int offset = -1;
-    
-    int accumulated = 0;
-    for(int i = 0; i < segmentTable.size(); i++){
-        int limit = segmentTable.get(i).getLimit();
-        if(locAdd < accumulated + limit){
-            segment = i;
-            offset  = locAdd - accumulated;
-            break;
-        }
-        accumulated += limit;
-    }
-
-    if(segment == -1){
-        System.out.println("Error - Local address " + locAdd + " out of process bounds");
-        return new MemoryAddress(-1, -1);
-=======
         int segment = -1;
         int offset = -1;
         
@@ -162,42 +143,7 @@ public class SegmentTable {
         // division = seg 
         // getAddress() = seg + physicalAddress = dirección física
         return new MemoryAddress(seg, physicalAddress);
->>>>>>> 7a28dd6dc2da8db2e6d3697a4ded22937daca680
     }
-    
-    //For Virtual Memory
-    if(store){
-        this.segmentTable.get(segment).setDirty();
-    }
-          
-    System.out.println("Accessing Segment "+segment+" and offset "+offset);
-    return new MemoryAddress(segment, offset);
-}
-    
-    public MemoryAddress getPhysicalMemoryAddressFromLogicalMemoryAddress(MemoryAddress m){
-    int seg = m.getDivision();
-    int offset = m.getOffset();
-
-    if(seg < 0 || seg >= segmentTable.size()){
-        System.out.println("Error - Invalid segment number: " + seg);
-        return new MemoryAddress(-1, -1);
-    }
-
-    SegmentTableEntry entry = segmentTable.get(seg);
-
-    if(!entry.isValid()){
-        System.out.println("Segment fault - Segment " + seg + " not loaded in memory");
-        return new MemoryAddress(-1, -1);
-    }
-
-    if(offset >= entry.getLimit() || offset < 0){
-        System.out.println("Segment fault - Offset " + offset + " out of bounds for segment " + seg);
-        return new MemoryAddress(-1, -1);
-    }
-
-    int physicalAddress = entry.getBase() + offset;
-    return new MemoryAddress(seg, physicalAddress);
-}
     
     public SegmentTableEntry getSegment(int i){
         return segmentTable.get(i);

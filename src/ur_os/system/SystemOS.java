@@ -774,10 +774,4 @@ public class SystemOS implements Runnable{
                 initSimulationQueueSimpler();
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
-
-
->>>>>>> 7a28dd6dc2da8db2e6d3697a4ded22937daca680
