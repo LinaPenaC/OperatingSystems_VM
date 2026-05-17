@@ -148,6 +148,15 @@ public class ProcessInstructionList {
         
     }
     
+    // Retorna todas las instrucciones desde la posición actual en adelante
+    public ArrayList<Instruction> getFutureInstructions() {
+        ArrayList<Instruction> futuras = new ArrayList<>();
+        for (int i = currentInstruction; i < instructions.size(); i++) {
+            futuras.add(instructions.get(i));
+        }
+        return futuras;
+    }
+    
     public int getTotalExecutionTime(){
         int tot = 0;
         

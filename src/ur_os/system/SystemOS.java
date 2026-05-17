@@ -20,7 +20,8 @@ import ur_os.process.EndInstruction;
 import ur_os.process.IOInstruction;
 import ur_os.process.Instruction;
 import ur_os.virtualmemory.SwapMemory;
-import java.util.Scanner; // Agrega este import
+import java.util.Scanner; 
+
 
 /**
  *
@@ -59,7 +60,7 @@ public class SystemOS implements Runnable{
         // 1. Menú para el FIT
         configurarFit(sc);
         configurarMemoryManager(sc);
-
+        OS.configurarMemoriaVirtual(sc); 
         // 2. Menú para el INIT SIMULATOR
         int opcionInit = configurarInit(sc);
 
@@ -505,6 +506,102 @@ public class SystemOS implements Runnable{
         clock = 0;
     }
     
+    public void initSimulationVirtualMemory() {
+    Process p;
+
+    // Proceso 0
+    p = new Process(0, 0);
+    p.setSize(500);
+    p.setTime_init(0);
+    p.addCPUInstructions(2);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  80,  (byte)-1, 2)); // pág 1
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  150, (byte)-1, 2)); // pág 2 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  200, (byte)-1, 2)); // pág 3 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  80,  (byte)-1, 2)); // pág 1 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  150, (byte)-1, 2)); // pág 2 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new EndInstruction());
+    processes.add(p);
+
+    // Proceso 1
+    p = new Process(1, 2);
+    p.setSize(300);
+    p.setTime_init(2);
+    p.addCPUInstructions(2);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.STORE, 80,  (byte)5,  2)); // pág 1
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.STORE, 80,  (byte)5,  2)); // pág 1
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  150, (byte)-1, 2)); // pág 2 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.STORE, 80,  (byte)9,  2)); // pág 1 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new EndInstruction());
+    processes.add(p);
+
+    // Proceso 2
+    p = new Process(2, 5);
+    p.setSize(400);
+    p.setTime_init(5);
+    p.addCPUInstructions(2);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  80,  (byte)-1, 2)); // pág 1
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  150, (byte)-1, 2)); // pág 2 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  80,  (byte)-1, 2)); // pág 1
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.STORE, 150, (byte)7,  2)); // pág 2
+    p.addCPUInstructions(1);
+    p.addInstruction(new EndInstruction());
+    processes.add(p);
+
+    // Proceso 3
+    p = new Process(3, 8);
+    p.setSize(300);
+    p.setTime_init(8);
+    p.addCPUInstructions(2);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  80,  (byte)-1, 2)); // pág 1
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0 → PF con MFU
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.STORE, 150, (byte)42, 2)); // pág 2 → PF
+    p.addCPUInstructions(1);
+    p.addInstruction(new MemoryInstruction(MemoryOperationType.LOAD,  10,  (byte)-1, 2)); // pág 0 → PF con MFU
+    p.addCPUInstructions(1);
+    p.addInstruction(new EndInstruction());
+    processes.add(p);
+}
+    
     
     
     public boolean isSimulationFinished(){
@@ -756,6 +853,7 @@ public class SystemOS implements Runnable{
         System.out.println("5. Init Simulation Queue Simpler 3 ");
         System.out.println("6. Init Simulation Queue Weird");
         System.out.println("7. Init Simulation Queue Weird 2");
+        System.out.println("8. Init Virtual Memory Test");
         System.out.print("Option: ");
         return sc.nextInt();
     }
@@ -769,6 +867,7 @@ public class SystemOS implements Runnable{
             case 5: initSimulationQueueSimpler3(); break;
             case 6: initSimulationQueueWeird();break;
             case 7: initSimulationQueueSimpler4();break;
+            case 8: initSimulationVirtualMemory(); break;
             default: 
                 System.out.println("Invalid option; using the default Simpler");
                 initSimulationQueueSimpler();

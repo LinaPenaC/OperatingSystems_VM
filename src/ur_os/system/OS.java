@@ -36,6 +36,8 @@ import ur_os.virtualmemory.*;
 import ur_os.virtualmemory.ProcessVirtualMemoryManagerType;
 import static ur_os.virtualmemory.ProcessVirtualMemoryManagerType.FIFO;
 import static ur_os.virtualmemory.ProcessVirtualMemoryManagerType.LRU;
+import java.util.Scanner;
+import ur_os.process.ProcessInstructionList;
 
 
 /**
@@ -60,9 +62,9 @@ public class OS {
     public static MemoryManagerType SMM = MemoryManagerType.CONTIGUOUS;
     public static FreeMemorySlotManagerType MSM = FreeMemorySlotManagerType.FIRST_FIT; //Aquí estoy cambiendo el FIT
     
-    public static final ProcessVirtualMemoryManagerType PVMM = ProcessVirtualMemoryManagerType.LRU;
-    public static final int FRAMES_PER_PROCESS = 3; //Maximum number of frames assigned to a process, if virtual memory is on
-    public static final boolean VIRTUAL_MEMORY_MODE_ON = false; //Maximum number of frames assigned to a process, if virtual memory is on
+    public static ProcessVirtualMemoryManagerType PVMM = ProcessVirtualMemoryManagerType.LRU;
+    public static int FRAMES_PER_PROCESS = 3; //Maximum number of frames assigned to a process, if virtual memory is on
+    public static boolean VIRTUAL_MEMORY_MODE_ON = false; //Maximum number of frames assigned to a process, if virtual memory is on
     
     
     public OS(SystemOS system, CPU cpu, IOQueue ioq){
@@ -120,6 +122,7 @@ public class OS {
     public void update(){
         rq.update();
     }
+    
     
     public boolean isCPUEmpty(){
         return cpu.isEmpty();
@@ -342,12 +345,77 @@ public class OS {
             case MFU:
                 p.getPMM().setPVMM(new PVMM_MFU());
                 break;
+            case OPTIMAL:
+                p.getPMM().setPVMM(new PVMM_OPTIMAL(p.getPBL()));
+                break;
 
         }
         
         
     }
     
+    /*
+ * Menú de memoria virtual.
+ * Se llama desde SystemOS antes de construir el OS.
+ * Pregunta si activar VM, cuántos frames por proceso y qué algoritmo usar.
+ * Con los frames se puede comparar el comportamiento de cada algoritmo
+ * con 2 frames vs 3 frames para el informe.
+ */
+public static void configurarMemoriaVirtual(Scanner sc) {
+    System.out.println("\n=== Configuración de Virtual Memory ===");
+    System.out.println("\nActivar memoria virtual?");
+    System.out.println("  1. Si");
+    System.out.println("  2. No");
+    System.out.print("Opcion: ");
+    int opcionVM = sc.nextInt();
+
+    if (opcionVM == 1) {
+        VIRTUAL_MEMORY_MODE_ON = true;
+
+        // Frames por proceso: entre menos frames, más page faults se generan.
+        System.out.println("\nCuantos frames asignar por proceso?");
+        System.out.println("  Recomendado: 2 o 3. Entre menos frames, mas page faults.");
+        System.out.print("Frames por proceso: ");
+        int framesIngresados = sc.nextInt();
+        if (framesIngresados > 0) {
+            FRAMES_PER_PROCESS = framesIngresados;
+        } else {
+            System.out.println("Valor invalido, se usara el valor por defecto: " + FRAMES_PER_PROCESS);
+        }
+        System.out.println("Frames por proceso: " + FRAMES_PER_PROCESS);
+
+        System.out.println("\n=== Algoritmos de Virtual Memory ===");
+        System.out.println("  1. FIFO");
+        System.out.println("  2. LRU");
+        System.out.println("  3. LFU");
+        System.out.println("  4. MFU");
+        System.out.println("  5. OPTIMAL (Belady) (saca la que más tarda en usarse de nuevo)");
+        System.out.print("Opcion: ");
+        int opcionAlg = sc.nextInt();
+
+        switch (opcionAlg) {
+            case 1: PVMM = ProcessVirtualMemoryManagerType.FIFO; break;
+            case 2: PVMM = ProcessVirtualMemoryManagerType.LRU;  break;
+            case 3: PVMM = ProcessVirtualMemoryManagerType.LFU;  break;
+            case 4: PVMM = ProcessVirtualMemoryManagerType.MFU;  break;
+            case 5: PVMM = ProcessVirtualMemoryManagerType.OPTIMAL; break;
+            default:
+                System.out.println("Opcion invalida, usando LRU.");
+                PVMM = ProcessVirtualMemoryManagerType.LRU;
+        }
+        System.out.println("Algoritmo seleccionado: " + PVMM);
+
+    } else {
+        VIRTUAL_MEMORY_MODE_ON = false;
+    }
+
+    System.out.println("  VM activa:          " + VIRTUAL_MEMORY_MODE_ON);
+    if (VIRTUAL_MEMORY_MODE_ON) {
+        System.out.println("  Frames por proceso: " + FRAMES_PER_PROCESS);
+        System.out.println("  Algoritmo:          " + PVMM);
+    }
+    System.out.println("------------------");
+}
     public MemorySlot getMemorySlot(int size){
         FreeMemorySlotManager msm = (FreeMemorySlotManager)fmm;
         return msm.getSlot(size);
